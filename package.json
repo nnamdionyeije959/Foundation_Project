@@ -1,0 +1,24 @@
+{
+  "name": "foundation_project",
+  "version": "1.0.0",
+  "description": "An application to make a grocery list api",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nnamdionyeije959/Foundation_Project.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nnamdionyeije959/Foundation_Project/issues"
+  },
+  "homepage": "https://github.com/nnamdionyeije959/Foundation_Project#readme",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.883.0",
+    "aws-sdk": "^2.1692.0",
+    "dotenv": "^17.2.2"
+  }
+}
