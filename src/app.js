@@ -1,24 +1,27 @@
-require('dotenv').config();
 
-const { DynamoDBClient, ListTablesCommand } = require("@aws-sdk/client-dynamodb");
-const { Credentials } = require('aws-sdk');
+const express = require('express');
+const app = express();
+const {logger, loggerMiddleware} = require('./util/logger');
+const {authenticateToken} = require("./util/jwt");
 
-// console.log(process.env.AWS_DEFAULT_REGION);
+// import the necessary functions from the employee controller
+const employeeController = require('./controller/employeeController');
 
-const client = new DynamoDBClient({
-    region: "us-east-1",
-    
-});
+const PORT = 3000;
 
+app.use(express.json());
+app.use(loggerMiddleware);
 
+app.use("/employees", employeeController);
 
-async function main() {
-    const listTablesCommand = new ListTablesCommand();
-    const res = await client.send(listTablesCommand);
-        // console.log({ tables: res.TableNames });
-    console.log({ res });
+app.get("/", (req, res) => {
+    res.send("Home Page");
+})
 
-}
+app.get("/protected", authenticateToken, (req, res) => {
+    res.json({message: "Accessed Protected Route", user: req.user});
+})
 
-main()
-    .catch(err => console.log(err));
+app.listen(PORT, () => {
+    console.log(`Server is listening on http://localhost:${PORT}`);
+})

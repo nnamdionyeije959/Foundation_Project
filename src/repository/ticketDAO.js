@@ -5,14 +5,14 @@ const {logger} = require("../util/logger");
 const client = new DynamoDBClient({region: "us-east-1"});
 const documentClient = DynamoDBDocumentClient.from(client);
 
-const TableName = "employees_table";
+const TableName = "tickets_table";
 
 // CRUD
 
-async function postEmployee(employee) {
+async function postTicket(ticket) {
     const command = new PutCommand({
         TableName,
-        Item: employee
+        Item: ticket
     })
 
     try{
@@ -25,26 +25,8 @@ async function postEmployee(employee) {
     }
 }
 
-async function getEmployeebyUsername(username) {
-    const command = new ScanCommand({
-        TableName,
-        FilterExpression: "#username = :username",
-        ExpressionAttributeNames: {"#username": "username"},
-        ExpressionAttributeValues: {":username": username}
-    });
-
-    try{
-        const data = await documentClient.send(command);
-        logger.info(`SCAN command to database complete ${JSON.stringify(data)}`);
-        return data.Items[0];
-    }catch(error){
-        logger.error(error);
-        return null;
-    }
-}
-
-// make a get employeebyId function for help
-async function getEmployeebyId(employee_id) {
+// need a function to get tickets by employeeId
+async function getTicketsByEmployeeId(employee_id) {
     const command = new ScanCommand({
         TableName,
         FilterExpression: "#employee_id = :employee_id",
@@ -55,17 +37,34 @@ async function getEmployeebyId(employee_id) {
     try{
         const data = await documentClient.send(command);
         logger.info(`SCAN command to database complete ${JSON.stringify(data)}`);
-        return data.Items[0];
+        return data.Items;
+    }catch(error){
+        logger.error(error);
+        return null;
+    }
+}
+async function getAllPendingTickets() {
+    const command = new ScanCommand({
+        TableName,
+        FilterExpression: "#status = :status",
+        ExpressionAttributeNames: {"#status": "status"},
+        ExpressionAttributeValues: {":status": "pending"}
+    });
+
+    try{
+        const data = await documentClient.send(command);
+        logger.info(`SCAN command to database complete ${JSON.stringify(data)}`);
+        return data.Items;
     }catch(error){
         logger.error(error);
         return null;
     }
 }
 
-//console.log(getEmployeebyUsername("nnamdi95e9"));
+//console.log(getAllPendingTickets());
 
 module.exports = {
-    postEmployee,
-    getEmployeebyUsername,
-    getEmployeebyId
+    postTicket,
+    getTicketsByEmployeeId,
+    getAllPendingTickets
 }
