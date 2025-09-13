@@ -6,6 +6,7 @@ const {authenticateToken} = require("./util/jwt");
 
 // import the necessary functions from the employee controller
 const employeeController = require('./controller/employeeController');
+const managerController = require('./controller/managerController');
 
 const PORT = 3000;
 
@@ -13,6 +14,7 @@ app.use(express.json());
 app.use(loggerMiddleware);
 
 app.use("/employees", employeeController);
+app.use("/managers", managerController);
 
 app.get("/", (req, res) => {
     res.send("Home Page");

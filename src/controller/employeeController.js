@@ -11,6 +11,7 @@ const ticketService = require("../service/ticketService");
 const { authenticateToken, decodeJWT } = require("../util/jwt");
 
 let tokenHolder = null;
+let translatedToken = null; 
 
 // use a placeholder employeeID for testing
 // will be replaced using JWT authentication
@@ -32,7 +33,8 @@ router.post("/login", async (req, res) => {
         const token = jwt.sign(
             {
                 id: data.employee_id,
-                username
+                username,
+                role: data.role // add some check so that only employees can add tickets!
             },
             secretKey,
             {
@@ -48,39 +50,54 @@ router.post("/login", async (req, res) => {
     };
 })
 
-router.post("/submit", async (req, res) => {
+router.post("/submit", validateLoginStatus, async (req, res) => {
     //const {amount, description, status, employee} = req.body;'
 
-    if (tokenHolder) {
-        const translatedToken = await decodeJWT(tokenHolder);
-        //console.log(translatedToken);
-        const data = await ticketService.postTicket(req.body, translatedToken.id, translatedToken.username);
-        if(data){
-            res.status(201).json({message: `Created ticket ${JSON.stringify(data)}`});
-        }else{
-            res.status(400).json({message: "ticket not created", data: req.body});
-        }
-    } else {
-        res.status(400).json({message: "You are not logged in"});
+    const data = await ticketService.postTicket(req.body, translatedToken.id, translatedToken.username);
+    if(data){
+        res.status(201).json({message: `Created ticket ${JSON.stringify(data)}`});
+    }else{
+        res.status(400).json({message: "ticket not created", data: req.body});
     }
+
+    // if (tokenHolder) {
+    //     const translatedToken = await decodeJWT(tokenHolder);
+    //     //console.log(translatedToken);
+        
+    // } else {
+    //     res.status(400).json({message: "You are not logged in"});
+    // }
 
 })
 
-router.get("/", async (req, res) => {
-    if (tokenHolder) {
-        const translatedToken = await decodeJWT(tokenHolder);
-        const data = await ticketService.getTicketsByEmployeeId(translatedToken.id);
-        if(data) {
-            //res.status(201).json({message: `Found tickets ${JSON.stringify(data)}`});
-            res.status(201).json(data);
-        }else{
-            res.status(400).json({message: "tickets not found", data: req.body});
-        }
-    } else {
-        res.status(400).json({message: "You are not logged in"});
+router.get("/", validateLoginStatus, async (req, res) => {
+    //const translatedToken = await decodeJWT(tokenHolder);
+    const data = await ticketService.getTicketsByEmployeeId(translatedToken.id);
+    
+    if(data) {
+        //res.status(201).json({message: `Found tickets ${JSON.stringify(data)}`});
+        res.status(201).json(data);
+    }else{
+        res.status(400).json({message: "tickets not found", data: req.body});
     }
 })
 
+async function validateLoginStatus(req, res, next) {
+    if (tokenHolder) {
+        translatedToken = await decodeJWT(tokenHolder);
+        if (!translatedToken) {
+            res.status(400).json({message: "Invalid token"});
+        }
+        if (translatedToken.role != "employee") {
+            res.status(400).json({message: "Action inaccessible to managers"});
+        } else {
+            next();
+        }
+        
+    } else {
+        res.status(400).json({message: "You are not logged in"});
+    }
+}
 
 // validate post ticket middleware
 function validatePostTicket(req, res, next) {

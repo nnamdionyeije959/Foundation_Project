@@ -16,6 +16,7 @@ async function postTicket(ticket, employee_id, username) {
             amount: ticket.amount,
             description: ticket.description,
             status: "pending",
+            reviewed: false,
             ticket_id: crypto.randomUUID(),
         })
         logger.info(`Creating new ticket: ${JSON.stringify(data)}`);
@@ -39,6 +40,21 @@ async function getTicketsByEmployeeId(employee_id) {
     }
 }
 
+async function getTicketById(ticket_id) {
+    if (ticket_id) {
+        const data = await ticketDAO.getTicketById(ticket_id);
+        if (data) {
+            logger.info(`Ticket found by Ticket ID: ${JSON.stringify(data)}`);
+            return data;
+        } else {
+            logger.info(`No Ticket found by Ticket Id: ${ticket_id}`);
+            return null;
+        }
+    } else {
+
+    }
+}
+
 
 function validateTicket(ticket) {
     const amountResult = ticket.amount > 0;
@@ -49,4 +65,5 @@ function validateTicket(ticket) {
 module.exports = {
     postTicket,
     getTicketsByEmployeeId,
+    getTicketById
 }

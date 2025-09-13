@@ -17,8 +17,14 @@ async function postEmployee(employee) {
             role: "employee",
             employee_id: crypto.randomUUID()
         })
-        logger.info(`Creating new employee: ${JSON.stringify(data)}`);
-        return data;
+        if (data) {
+            logger.info(`Creating new employee: ${JSON.stringify(data)}`);
+            return data;
+        } else {
+            logger.info(`Failed to create new employee: ${JSON.stringify(employee)}`);
+            return null;
+        }
+        
     } else {
         logger.info(`Failed to validate employee: ${JSON.stringify(employee)}`);
         return null;
