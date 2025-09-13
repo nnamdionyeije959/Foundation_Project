@@ -49,6 +49,7 @@ async function getEmployeebyUsername(username) {
     if (username) {
         const data = await employeeDAO.getEmployeebyUsername(username);
         if(data){
+            //console.log(data);
             logger.info(`Employee found by username: ${JSON.stringify(data)}`);
             return data;
         }else{

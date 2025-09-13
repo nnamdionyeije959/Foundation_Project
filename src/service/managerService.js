@@ -64,6 +64,7 @@ async function validateManagerLogin(username, password) {
 // middleware function to check if ticket update is valid
 async function validateTicketUpdate(ticket_id, newStatus) {
     const employeeCheckResult = await ticketService.getTicketById(ticket_id);
+    //console.log(employeeCheckResult)
     const validStatus = (newStatus == "approved" || newStatus == "denied");
     return (employeeCheckResult && validStatus);
 }
@@ -72,5 +73,6 @@ module.exports = {
     getAllPendingRequests,
     validateManagerLogin,
     getAllTickets,
-    updateTicketStatus
+    updateTicketStatus,
+    validateTicketUpdate
 }

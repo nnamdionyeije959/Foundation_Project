@@ -19,6 +19,8 @@ const currentEmployeeId = "aa75718c-b875-4587-9f05-4e10bd91caf5";
 
 router.post("/", validatePostEmployee, async (req, res) => {
     const data = await employeeService.postEmployee(req.body);
+    // console.log("Data");
+    // console.log(data.$metadata.attempts);
     if(data){
         res.status(201).json({message: `Created Employee ${JSON.stringify(data)}`});
     }else{

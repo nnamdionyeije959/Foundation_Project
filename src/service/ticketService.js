@@ -19,6 +19,7 @@ async function postTicket(ticket, employee_id, username) {
             reviewed: false,
             ticket_id: crypto.randomUUID(),
         })
+        
         logger.info(`Creating new ticket: ${JSON.stringify(data)}`);
         return data;
     } else {
