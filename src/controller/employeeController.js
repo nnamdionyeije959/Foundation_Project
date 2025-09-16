@@ -58,6 +58,12 @@ router.post("/login", async (req, res) => {
 // wipe the token and clear token holder and translated token
 // copy function in Manager Controller
 
+router.post("/logout", validateLoginStatus, async (req, res) => {
+    tokenHolder = null;
+    translatedToken = null;
+    res.status(200).json({message: "You have been logged out!"});
+});
+
 router.post("/submit", validateLoginStatus, async (req, res) => {
     //const {amount, description, status, employee} = req.body;'
 

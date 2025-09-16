@@ -62,6 +62,12 @@ router.post("/login", async (req, res) => {
     };
 })
 
+router.post("/logout", validateManagerLoginStatus, async (req, res) => {
+    tokenHolder = null;
+    translatedToken = null;
+    res.status(200).json({message: "You have been logged out!"});
+});
+
 router.put("/requests", validateManagerLoginStatus, async (req, res) => {
     const {ticket_id, newStatus} = req.body;
     const data = await managerService.updateTicketStatus(ticket_id, newStatus);
