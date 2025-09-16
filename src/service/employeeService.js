@@ -7,9 +7,9 @@ const {logger} = require("../util/logger");
 async function postEmployee(employee) {
     const saltRounds = 10;
     
-    const usernameCheck = await (getEmployeebyUsername(employee.username))
+    //const usernameCheck = await (getEmployeebyUsername(employee.username))
     // Validate the user and check if the new username is already taken
-    if (validateEmployee(employee) && (!usernameCheck)){
+    if (employee && validateEmployee(employee) ){
         const password = await bcrypt.hash(employee.password, saltRounds);
         const data = await employeeDAO.postEmployee({
             username: employee.username,
@@ -32,6 +32,10 @@ async function postEmployee(employee) {
 }
 
 async function validateLogin(username, password) {
+    if (!username || !password) {
+        return null;
+    }
+
     const employee = await getEmployeebyUsername(username);
     if(employee && (await bcrypt.compare(password, employee.password))) {
         logger.info(`Employee logged in successfully`)
@@ -56,6 +60,9 @@ async function getEmployeebyUsername(username) {
             logger.info(`Employee not found by username: ${username}`);
             return null;
         }
+    } else {
+        logger.info(`Invalid Username`);
+        return null;
     }
 }
 
@@ -69,16 +76,28 @@ async function getEmployeebyId(employee_id) {
             logger.info(`Employee not found by id: ${employee_id}`);
             return null;
         }
+    } else {
+        logger.info(`Invalid Employee ID`);
+        return null;
     }
 }
 
 //console.log(getEmployeebyUsername("nnamdi9e59").Items);
 
 
-function validateEmployee(employee){
-    const usernameResult = employee.username.length > 0;
-    const passwordResult = employee.password.length > 0;
-    return (usernameResult && passwordResult);
+async function validateEmployee(employee){
+    if (employee) {
+        const usernameResult = employee.username.length > 0;
+        const passwordResult = employee.password.length > 0;
+
+        const usernameCheck = await (getEmployeebyUsername(employee.username))
+
+        return (usernameResult && passwordResult && !usernameCheck);
+    } else {
+        logger.info(`Invalid Employee Object`);
+        return false;
+    }
+    
 }
 
 module.exports = {

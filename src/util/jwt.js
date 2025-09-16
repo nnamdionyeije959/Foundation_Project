@@ -31,7 +31,7 @@ async function decodeJWT(token) {
         const user = await jwt.verify(token, secretKey);
         return user;
     } catch(error) {
-        logger.error(error);
+        logger.error(err);
         return null;
     }
 }

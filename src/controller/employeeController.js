@@ -52,6 +52,12 @@ router.post("/login", async (req, res) => {
     };
 })
 
+// create a logout function for the employee to help with testing
+// router.post(login)
+// validateLoginStatus
+// wipe the token and clear token holder and translated token
+// copy function in Manager Controller
+
 router.post("/submit", validateLoginStatus, async (req, res) => {
     //const {amount, description, status, employee} = req.body;'
 

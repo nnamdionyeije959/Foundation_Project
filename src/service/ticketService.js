@@ -7,10 +7,9 @@ const {logger} = require("../util/logger");
 
 async function postTicket(ticket, employee_id, username) {
 
-    if (validateTicket(ticket) && employee_id && username) {
+    if (validateTicket(ticket) && validateEmployeeId(employee_id, username)) {
         
         const data = await ticketDAO.postTicket({
-            
             employee_id: employee_id,
             username: username,
             amount: ticket.amount,
@@ -19,9 +18,16 @@ async function postTicket(ticket, employee_id, username) {
             reviewed: false,
             ticket_id: crypto.randomUUID(),
         })
+        if (data) {
+            logger.info(`Creating new ticket: ${JSON.stringify(data)}`);
+            return data;
+        } else {
+            logger.info(`Failed to post new ticket: ${ticket}`);
+            return null;
+        }
+        // add check for data errors
         
-        logger.info(`Creating new ticket: ${JSON.stringify(data)}`);
-        return data;
+        
     } else {
         logger.info(`Failed to validate ticket: ${JSON.stringify(ticket)}`);
         return null;
@@ -38,6 +44,9 @@ async function getTicketsByEmployeeId(employee_id) {
             logger.info(`No Tickets found by Employee ID: ${employee_id}`);
             return null;
         }
+    } else {
+        logger.info(`No Employee found with ID: ${employee_id}`);
+        return null;
     }
 }
 
@@ -52,10 +61,10 @@ async function getTicketById(ticket_id) {
             return null;
         }
     } else {
-
+        logger.info(`Invalid Ticket ID`);
+        return null;
     }
 }
-
 
 function validateTicket(ticket) {
     const amountResult = ticket.amount > 0;
@@ -63,8 +72,22 @@ function validateTicket(ticket) {
     return (amountResult && descriptionResult);
 }
 
+// add an aditional helper function to validate the passed in employeeID
+async function validateEmployeeId(employee_id, username) {
+    if (!employee_id || !username) {
+        return false;
+    }
+    const employee = await employeeService.getEmployeebyId(employee_id);
+    if (employee && employee.username == username) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 module.exports = {
     postTicket,
     getTicketsByEmployeeId,
-    getTicketById
+    getTicketById,
+    validateEmployeeId
 }
