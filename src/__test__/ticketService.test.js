@@ -66,6 +66,12 @@ describe("Ticket Posting testing Suite", () => {
         expect(postedTicket).toBeNull();
     })
 
+    test("handling null input", async () => {
+        const postedTicket = await ticketService.postTicket(null, null, null);
+
+        expect(postedTicket).toBeNull();
+    })
+
     test("Handling failed database posting", async () => {
         ticketDAO.postTicket.mockReturnValue(null);
 
@@ -119,6 +125,13 @@ describe("Ticket retrieval by employee ID tests", () => {
         expect(returnedTickets.length).toBe(2);
         expect(returnedTickets[0].ticket_id).toBe("22f24f13-f885-456e-894c-3745364c3645");
     })
+
+    test("Passing in a null employee ID", async () => {
+        const returnedTicket = await ticketService.getTicketsByEmployeeId(null);
+
+        expect(returnedTicket).toBeNull();
+    })
+
 
     test("Passing in an invalid employee ID should return null", async () => {
         employeeService.getEmployeebyId.mockReturnValue(null);

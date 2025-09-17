@@ -170,6 +170,11 @@ describe("Ticket Status Updating Suite", () => {
         expect(updatedTicket).toBeNull();
     })
 
+    test("Posting a ticket update with null parameters", async () => {
+        const updatedTicket = await managerService.updateTicketStatus(null, null);
+        expect(updatedTicket).toBeNull();
+    })
+
     test("Handling of failed ticket update with valid update", async () => {
         ticketService.getTicketById.mockReturnValue({
             ticket_id: "22f24f13-f885-456e-894c-3745364c3645",
@@ -255,6 +260,11 @@ describe("Manager Login Validation Suite", () => {
         expect(employeeService.getEmployeebyUsername).toHaveBeenCalled();
         expect(validatedManagersLogin).toBeNull();
     })
+
+    test("Passing in null username or password", async () => {
+        const validatedManagersLogin = await managerService.validateManagerLogin(null, null);
+        expect(validatedManagersLogin).toBeNull();
+    })
 })
 
 describe("Ticket Validation Suite", () => {
@@ -296,6 +306,11 @@ describe("Ticket Validation Suite", () => {
 
         const validateState = await managerService.validateTicketUpdate(dummyTicketId, dummyInvalidStatus);
         expect(ticketService.getTicketById).toHaveBeenCalled();
+        expect(validateState).toBeNull();
+    })
+
+    test("Passing in null ticket_id or status", async () => {
+        const validateState = await managerService.validateTicketUpdate(null, null);
         expect(validateState).toBeNull();
     })
 })

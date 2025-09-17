@@ -51,6 +51,12 @@ async function updateTicketStatus(ticket_id, newStatus) {
 
 // middleware function
 async function validateManagerLogin(username, password) {
+
+    if (!username || !password) {
+        logger.info(`Invalid Username or Password`);
+        return null;
+    }
+
     const manager = await employeeService.getEmployeebyUsername(username);
     if (manager && (await bcrypt.compare(password, manager.password)) && manager.role == 'manager') {
         logger.info(`Manager logged in successfully`)
@@ -63,6 +69,10 @@ async function validateManagerLogin(username, password) {
 
 // middleware function to check if ticket update is valid
 async function validateTicketUpdate(ticket_id, newStatus) {
+    if (!ticket_id || !newStatus) {
+        return null;
+    }
+
     const employeeCheckResult = await ticketService.getTicketById(ticket_id);
     //console.log(employeeCheckResult)
     const validStatus = (newStatus == "approved" || newStatus == "denied");

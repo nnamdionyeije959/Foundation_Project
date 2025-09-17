@@ -7,7 +7,7 @@ const {logger} = require("../util/logger");
 
 async function postTicket(ticket, employee_id, username) {
 
-    if (validateTicket(ticket) && validateEmployeeId(employee_id, username)) {
+    if (ticket && validateTicket(ticket) && validateEmployeeId(employee_id, username)) {
         
         const data = await ticketDAO.postTicket({
             employee_id: employee_id,
@@ -35,7 +35,7 @@ async function postTicket(ticket, employee_id, username) {
 }
 
 async function getTicketsByEmployeeId(employee_id) {
-    if (employeeService.getEmployeebyId(employee_id)) {
+    if (employee_id && employeeService.getEmployeebyId(employee_id)) {
         const data = await ticketDAO.getTicketsByEmployeeId(employee_id);
         if(data){
             logger.info(`Ticket(s) found by Employee ID: ${JSON.stringify(data)}`);
