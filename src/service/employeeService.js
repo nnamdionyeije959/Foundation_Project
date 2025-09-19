@@ -9,7 +9,7 @@ async function postEmployee(employee) {
     
     //const usernameCheck = await (getEmployeebyUsername(employee.username))
     // Validate the user and check if the new username is already taken
-    if (employee && validateEmployee(employee) ){
+    if (employee && await validateEmployee(employee)){
         const password = await bcrypt.hash(employee.password, saltRounds);
         const data = await employeeDAO.postEmployee({
             username: employee.username,
@@ -86,13 +86,12 @@ async function getEmployeebyId(employee_id) {
 
 
 async function validateEmployee(employee){
-    if (employee) {
+    const usernameCheck = await (getEmployeebyUsername(employee.username));
+    if (employee && !usernameCheck) {
         const usernameResult = employee.username.length > 0;
         const passwordResult = employee.password.length > 0;
 
-        const usernameCheck = await (getEmployeebyUsername(employee.username))
-
-        return (usernameResult && passwordResult && !usernameCheck);
+        return (usernameResult && passwordResult && (usernameCheck === null));
     } else {
         logger.info(`Invalid Employee Object`);
         return false;

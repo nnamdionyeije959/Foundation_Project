@@ -34,7 +34,8 @@ async function getAllPendingRequests() {
 }
 
 async function updateTicketStatus(ticket_id, newStatus) {
-    if (validateTicketUpdate) {
+    //const ticketChecker = await validateTicketUpdate
+    if (await validateTicketUpdate(ticket_id, newStatus)) {
         const data = await ticketDAO.updateTicketStatus(ticket_id, newStatus);
         if (data) {
             logger.info(`Ticket has been updated: ${JSON.stringify(data)}`)
@@ -74,9 +75,10 @@ async function validateTicketUpdate(ticket_id, newStatus) {
     }
 
     const employeeCheckResult = await ticketService.getTicketById(ticket_id);
-    //console.log(employeeCheckResult)
+    console.log("ticket result checker");
+    console.log(employeeCheckResult);
     const validStatus = (newStatus == "approved" || newStatus == "denied");
-    return (employeeCheckResult && validStatus);
+    return (employeeCheckResult && validStatus && employeeCheckResult.reviewed == false);
 }
 
 module.exports = {

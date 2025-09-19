@@ -45,6 +45,7 @@ async function getEmployeebyUsername(username) {
     }
 }
 
+
 // make a get employeebyId function for help
 async function getEmployeebyId(employee_id) {
     const command = new ScanCommand({

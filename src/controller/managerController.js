@@ -11,8 +11,8 @@ const managerService = require("../service/managerService");
 
 const { authenticateToken, decodeJWT } = require("../util/jwt");
 
-let tokenHolder = null;
-let translatedToken = null; 
+//let tokenHolder = null;
+// let translatedToken = null; 
 
 
 // this should be a get/pending request
@@ -22,7 +22,7 @@ router.get("/all-tickets", validateManagerLoginStatus, async (req, res) => {
     const data = await managerService.getAllTickets();
     // check for if the manager is logged in
     if (data) {
-        res.status(201).json({data});
+        res.status(201).json({message: "Tickets have been successfully found", data: data});
     } else {
         res.status(400).json({message: "failed to find requests", data: req.body});
     }
@@ -32,7 +32,7 @@ router.get("/pending", validateManagerLoginStatus, async (req, res) => {
     const data = await managerService.getAllPendingRequests();
     // check for if the manager is logged in
     if (data) {
-        res.status(201).json({data});
+        res.status(201).json({message: "Pending tickets have been successfully found", data: data});
     } else {
         res.status(400).json({message: "failed to find pending requests", data: req.body});
     }
@@ -54,7 +54,7 @@ router.post("/login", async (req, res) => {
             }
         );
         //console.log(token);
-        tokenHolder = token;
+        //tokenHolder = token;
         //console.log(tokenHolder);
         res.status(200).json({message: "you have logged in", token});
     } else {
@@ -62,25 +62,27 @@ router.post("/login", async (req, res) => {
     };
 })
 
-router.post("/logout", validateManagerLoginStatus, async (req, res) => {
-    tokenHolder = null;
-    translatedToken = null;
-    res.status(200).json({message: "You have been logged out!"});
-});
+// router.post("/logout", validateManagerLoginStatus, async (req, res) => {
+//     tokenHolder = null;
+//     translatedToken = null;
+//     res.status(200).json({message: "You have been logged out!"});
+// });
 
 router.put("/requests", validateManagerLoginStatus, async (req, res) => {
     const {ticket_id, newStatus} = req.body;
     const data = await managerService.updateTicketStatus(ticket_id, newStatus);
     if (data) {
-        res.status(201).json({data});
+        res.status(201).json({message: "Ticket has been updated successfully", data: data});
     } else {
         res.status(400).json({message: "failed to update ticket", data: req.body});
     }
 })
 
 async function validateManagerLoginStatus(req, res, next) {
-    if (tokenHolder) {
-        translatedToken = await decodeJWT(tokenHolder);
+    const currentToken = req.headers['authorization'].split(" ")[1];
+
+    if (currentToken) {
+        const translatedToken = await decodeJWT(currentToken);
         if (!translatedToken) {
             res.status(400).json({message: "Invalid token"});
         }

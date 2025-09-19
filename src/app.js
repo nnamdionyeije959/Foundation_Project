@@ -12,6 +12,7 @@ const PORT = 3000;
 
 app.use(express.json());
 app.use(loggerMiddleware);
+app.use(express.static("static"));
 
 app.use("/employees", employeeController);
 app.use("/managers", managerController);

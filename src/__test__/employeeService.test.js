@@ -85,7 +85,6 @@ describe("Employee Posting Suite", () => {
 })
 
 
-
 describe("Getting an Employee by their Username Suite", () => {
     test("Should return an employee through their username", async () => {
         employeeDAO.getEmployeebyUsername.mockReturnValue({

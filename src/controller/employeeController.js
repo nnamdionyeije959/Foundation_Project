@@ -10,9 +10,6 @@ const ticketService = require("../service/ticketService");
 
 const { authenticateToken, decodeJWT } = require("../util/jwt");
 
-let tokenHolder = null;
-let translatedToken = null; 
-
 // use a placeholder employeeID for testing
 // will be replaced using JWT authentication
 const currentEmployeeId = "aa75718c-b875-4587-9f05-4e10bd91caf5";
@@ -44,7 +41,7 @@ router.post("/login", async (req, res) => {
             }
         );
         //console.log(token);
-        tokenHolder = token;
+        //tokenHolder = token;
         //console.log(tokenHolder);
         res.status(200).json({message: "you have logged in", token});
     } else {
@@ -58,16 +55,18 @@ router.post("/login", async (req, res) => {
 // wipe the token and clear token holder and translated token
 // copy function in Manager Controller
 
-router.post("/logout", validateLoginStatus, async (req, res) => {
-    tokenHolder = null;
-    translatedToken = null;
-    res.status(200).json({message: "You have been logged out!"});
-});
+// router.post("/logout", validateLoginStatus, async (req, res) => {
+//     tokenHolder = null;
+//     translatedToken = null;
+//     res.status(200).json({message: "You have been logged out!"});
+// });
 
 router.post("/submit", validateLoginStatus, async (req, res) => {
     //const {amount, description, status, employee} = req.body;'
 
-    const data = await ticketService.postTicket(req.body, translatedToken.id, translatedToken.username);
+    const localTranslatedToken = await decodeJWT(req.headers['authorization'].split(" ")[1]);
+
+    const data = await ticketService.postTicket(req.body, localTranslatedToken.id, localTranslatedToken.username);
     if(data){
         res.status(201).json({message: `Created ticket ${JSON.stringify(data)}`});
     }else{
@@ -86,7 +85,10 @@ router.post("/submit", validateLoginStatus, async (req, res) => {
 
 router.get("/", validateLoginStatus, async (req, res) => {
     //const translatedToken = await decodeJWT(tokenHolder);
-    const data = await ticketService.getTicketsByEmployeeId(translatedToken.id);
+    const localTranslatedToken = await decodeJWT(req.headers['authorization'].split(" ")[1]);
+    console.log(localTranslatedToken);
+    
+    const data = await ticketService.getTicketsByEmployeeId(localTranslatedToken.id);
     
     if(data) {
         //res.status(201).json({message: `Found tickets ${JSON.stringify(data)}`});
@@ -97,8 +99,10 @@ router.get("/", validateLoginStatus, async (req, res) => {
 })
 
 async function validateLoginStatus(req, res, next) {
-    if (tokenHolder) {
-        translatedToken = await decodeJWT(tokenHolder);
+    const currentToken = req.headers['authorization'].split(" ")[1];
+
+    if (currentToken) {
+        const translatedToken = await decodeJWT(currentToken);
         if (!translatedToken) {
             res.status(400).json({message: "Invalid token"});
         }
@@ -109,7 +113,7 @@ async function validateLoginStatus(req, res, next) {
         }
         
     } else {
-        res.status(400).json({message: "You are not logged in"});
+        res.status(400).json({message: "You are not logged in as an employee"});
     }
 }
 
